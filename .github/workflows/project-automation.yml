@@ -1,0 +1,140 @@
+name: Project Management Automation
+
+on:
+  issues:
+    types: [opened, labeled, assigned, closed, reopened]
+  pull_request:
+    types: [opened, labeled, assigned, closed, reopened, ready_for_review]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PROJECT_NUMBER: 5  # Update with your actual project number
+
+jobs:
+  add-to-project:
+    name: Add to Project Board
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Add Issue/PR to Project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/PabloPenguin/projects/5
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  update-project-status:
+    name: Update Project Status
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' || github.event.action == 'reopened'
+    steps:
+      - name: Update Status - Closed
+        if: github.event.action == 'closed'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const query = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: {
+                    singleSelectOptionId: $value
+                  }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            // This would need to be configured with actual project IDs
+            console.log('Issue/PR closed - would update project status to Done');
+
+      - name: Update Status - Reopened
+        if: github.event.action == 'reopened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log('Issue/PR reopened - would update project status to In Progress');
+
+  label-automation:
+    name: Label-based Project Automation
+    runs-on: ubuntu-latest
+    if: github.event.action == 'labeled'
+    steps:
+      - name: Move High Priority Items
+        if: contains(github.event.label.name, 'priority:high') || contains(github.event.label.name, 'critical')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log('High priority label added - would move to Priority column');
+
+      - name: Move Security Items
+        if: contains(github.event.label.name, 'security')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log('Security label added - would move to Security Review column');
+
+      - name: Move Bug Items
+        if: contains(github.event.label.name, 'bug')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log('Bug label added - would move to Bug Triage column');
+
+  assign-reviewers:
+    name: Auto-assign Reviewers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Assign Security Review
+        if: contains(github.event.pull_request.title, '[SECURITY]') || contains(join(github.event.pull_request.labels.*.name), 'security')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: ['PabloPenguin']  // Add security team members
+            });
+
+      - name: Assign Component Reviewers
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = context.payload.pull_request.title.toLowerCase();
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            
+            let reviewers = [];
+            
+            // Check for CLI changes
+            if (files.data.some(file => file.filename.startsWith('cli/'))) {
+              reviewers.push('PabloPenguin');
+            }
+            
+            // Check for webapp changes
+            if (files.data.some(file => file.filename.startsWith('webapp/'))) {
+              reviewers.push('PabloPenguin');
+            }
+            
+            // Check for documentation changes
+            if (files.data.some(file => file.filename.startsWith('docs/'))) {
+              reviewers.push('PabloPenguin');
+            }
+            
+            if (reviewers.length > 0) {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                reviewers: [...new Set(reviewers)]  // Remove duplicates
+              });
+            }
