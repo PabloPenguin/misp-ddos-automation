@@ -25,11 +25,15 @@ This project solves the challenge of **standardized DDoS event sharing** across 
 - **Search & Retrieve**: Query existing DDoS events
 - **Connection Testing**: Validate MISP connectivity and credentials
 
-### 🌐 Web Application (Coming Soon)
-- **Drag & Drop Upload**: User-friendly file upload interface
-- **Real-time Processing**: Live progress tracking and validation
-- **GitHub Integration**: Automated processing via GitHub Actions
+### 🌐 Web Application
+- **Drag & Drop Upload**: User-friendly file upload interface with validation
+- **Real-time Processing**: Live progress tracking and error reporting
+- **Event Management**: View, create, and manage DDoS events
+- **User Authentication**: Secure JWT-based authentication
 - **Responsive Design**: Works on desktop and mobile devices
+- **Accessibility**: WCAG 2.1 compliant interface
+
+See [webapp/README.md](webapp/README.md) for setup and usage instructions.
 
 ### 🛡️ Security Features
 - **Input Validation**: Comprehensive sanitization and validation
@@ -100,6 +104,28 @@ LOG_FILE=misp_cli.log
 **🔒 Security Note**: Never commit the `.env` file to version control!
 
 ## 📖 Usage
+
+### Web Application
+
+The web application provides a modern, user-friendly interface for managing DDoS events.
+
+#### Quick Start
+```bash
+cd webapp
+npm install
+npm run dev
+```
+
+The application will be available at `http://localhost:5173`
+
+#### Features
+- **Authentication**: Secure login with JWT tokens
+- **File Upload**: Drag & drop CSV/JSON files with real-time validation
+- **Progress Tracking**: Monitor file processing with live updates
+- **Event Management**: View, create, and manage events in a table
+- **Responsive UI**: Works seamlessly on desktop and mobile
+
+For detailed documentation, see [webapp/README.md](webapp/README.md) and [webapp/ARCHITECTURE.md](webapp/ARCHITECTURE.md).
 
 ### CLI Commands
 
