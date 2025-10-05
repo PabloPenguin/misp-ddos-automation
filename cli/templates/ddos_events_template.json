@@ -1,0 +1,33 @@
+{
+  "events": [
+    {
+      "title": "Example DDoS Attack",
+      "description": "Large-scale volumetric DDoS attack targeting web infrastructure",
+      "attacker_ips": ["192.0.2.10", "192.0.2.11", "192.0.2.12"],
+      "victim_ips": ["203.0.113.100", "203.0.113.101"],
+      "attack_ports": [80, 443, 8080],
+      "attack_type": "direct-flood",
+      "severity": "high",
+      "timestamp": "2025-10-03T12:00:00Z",
+      "additional_attributes": {
+        "duration_minutes": 120,
+        "peak_bandwidth_gbps": 50,
+        "attack_vector": "HTTP flood"
+      }
+    },
+    {
+      "title": "DNS Amplification Attack",
+      "description": "DNS amplification attack using open resolvers",
+      "attacker_ips": ["198.51.100.20", "198.51.100.21"],
+      "victim_ips": ["203.0.113.200"],
+      "attack_ports": [53],
+      "attack_type": "amplification",
+      "severity": "medium",
+      "timestamp": "2025-10-03T14:30:00Z",
+      "additional_attributes": {
+        "amplification_factor": 50,
+        "protocol": "DNS"
+      }
+    }
+  ]
+}

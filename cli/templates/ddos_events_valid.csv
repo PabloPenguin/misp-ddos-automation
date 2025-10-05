@@ -1,0 +1,5 @@
+title,description,attacker_ips,victim_ips,attack_ports,attack_type,severity
+"Large-scale DDoS Attack","Volumetric attack targeting e-commerce platform","192.0.2.10,192.0.2.11,192.0.2.12","203.0.113.100,203.0.113.101","80,443,8080","direct-flood","high"
+"DNS Amplification Attack","DNS amplification using open resolvers","198.51.100.20,198.51.100.21","203.0.113.200","53","amplification","medium"
+"SYN Flood Attack","TCP SYN flood targeting web servers","192.0.2.30,192.0.2.31","203.0.113.250","80,443","direct-flood","medium"
+"NTP Amplification","NTP amplification attack","198.51.100.40","203.0.113.251","123","amplification","low"

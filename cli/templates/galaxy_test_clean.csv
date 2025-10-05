@@ -1,0 +1,2 @@
+title,description,attacker_ips,victim_ips,attack_ports,attack_type,severity
+Galaxy Test,Testing Galaxy implementation,192.0.2.199,203.0.113.199,80,direct-flood,high

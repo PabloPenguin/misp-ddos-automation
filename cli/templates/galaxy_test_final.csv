@@ -1,0 +1,2 @@
+title,description,attacker_ips,victim_ips,attack_ports,attack_type,severity
+"Galaxy Cluster Test","Testing automatic Galaxy Cluster creation via tags","192.0.2.200","203.0.113.200","80","direct-flood","high"
