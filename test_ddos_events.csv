@@ -1,0 +1,4 @@
+title,description,attacker_ips,victim_ips,attack_ports,attack_type,severity
+DDoS Attack on Company Network,Large scale DDoS attack targeting company infrastructure,192.168.1.100;10.0.0.5,203.0.113.10;198.51.100.20,80;443,direct-flood,high
+DNS Amplification Attack,DNS amplification attack using compromised resolvers,203.0.113.15;198.51.100.25,192.168.1.50,53,amplification,medium
+HTTP Flood Attack,Application layer HTTP flood attack,10.0.0.20;172.16.0.10,203.0.113.30,80;8080,other,critical

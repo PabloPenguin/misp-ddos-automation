@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/PabloPenguin/misp-ddos-automation/discussions
+    about: Ask questions, share ideas, and discuss the project with the community
+  - name: 📖 Documentation
+    url: https://github.com/PabloPenguin/misp-ddos-automation/wiki
+    about: Check the project documentation and guides
+  - name: 🔒 Security Contact
+    url: mailto:security@yourorganization.com
+    about: Report critical security vulnerabilities privately
+  - name: 🛡️ MISP Community
+    url: https://www.misp-project.org/
+    about: General MISP questions and community support

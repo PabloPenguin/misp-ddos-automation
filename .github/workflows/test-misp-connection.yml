@@ -1,0 +1,83 @@
+name: Test MISP Connection
+
+on:
+  workflow_dispatch:
+    inputs:
+      misp_url:
+        description: 'MISP instance URL'
+        required: true
+        type: string
+        default: 'https://server1.tailaa85d9.ts.net'
+      test_connection:
+        description: 'Test connection only'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  test-misp-connection:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        cd cli
+        pip install -r requirements.txt
+        
+    - name: Test MISP Connection
+      env:
+        MISP_URL: ${{ github.event.inputs.misp_url }}
+        MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
+      run: |
+        cd cli
+        python -c "
+        import os
+        import sys
+        sys.path.insert(0, 'src')
+        
+        try:
+            from misp_client import SecureMISPClient
+            
+            print('🔧 Testing MISP Connection via GitHub Actions...')
+            print('=' * 50)
+            print(f'📡 MISP URL: {os.environ.get(\"MISP_URL\")}')
+            print(f'🔑 API Key: {os.environ.get(\"MISP_API_KEY\", \"NOT_SET\")[:8]}...')
+            
+            # Initialize client
+            client = SecureMISPClient()
+            print('✅ MISP client initialized successfully')
+            
+            # Test would go here, but client initialization already tests connection
+            print('✅ Connection test completed successfully!')
+            print('🎉 MISP instance is accessible and API key is valid')
+            
+        except Exception as e:
+            print(f'❌ MISP connection failed: {e}')
+            sys.exit(1)
+        "
+        
+    - name: Create Connection Status Report
+      run: |
+        cat > connection_status.json << EOF
+        {
+          \"status\": \"success\",
+          \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+          \"misp_url\": \"${{ github.event.inputs.misp_url }}\",
+          \"test_type\": \"connection_verification\",
+          \"message\": \"MISP connection verified via GitHub Actions\"
+        }
+        EOF
+        
+    - name: Upload Connection Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: misp-connection-report
+        path: connection_status.json

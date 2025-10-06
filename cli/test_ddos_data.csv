@@ -1,0 +1,3 @@
+title,description,attacker_ips,victim_ips,attack_ports,attack_type,severity
+"Test DDoS Attack","Sample DDoS attack for testing","1.2.3.4,5.6.7.8","10.0.0.1","80,443","direct-flood","high"
+"Volume DDoS","Large volume attack","9.8.7.6,8.7.6.5","192.168.1.100","8080,8443","amplification","critical"

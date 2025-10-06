@@ -1,0 +1,81 @@
+name: Refresh MISP Dashboard Data
+
+on:
+  schedule:
+    # Run every 30 minutes during business hours (8 AM - 6 PM UTC)
+    - cron: '*/30 8-18 * * 1-5'
+    # Run every 2 hours outside business hours and weekends  
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - 'cli/**'
+      - '.github/workflows/refresh-misp-data.yml'
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: Install CLI dependencies
+      run: |
+        cd cli
+        pip install -r requirements.txt
+        
+    - name: Verify MISP connection
+      env:
+        MISP_URL: ${{ secrets.MISP_URL }}
+        MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
+        MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
+      run: |
+        cd cli
+        python src/misp_client.py --test-connection
+        
+    - name: Fetch MISP events data (Non TLP:RED)
+      env:
+        MISP_URL: ${{ secrets.MISP_URL }}
+        MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
+        MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
+      run: |
+        cd cli
+        python src/misp_client.py --fetch-dashboard-data --output ../webapp/frontend/public/data/dashboard-data.json
+        
+    - name: Generate timestamp
+      run: |
+        echo "TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+        
+    - name: Create data directory if it doesn't exist
+      run: |
+        mkdir -p webapp/frontend/public/data
+        
+    - name: Update data timestamp
+      run: |
+        echo "{\"lastUpdated\": \"$TIMESTAMP\", \"source\": \"github-actions\"}" > webapp/frontend/public/data/last-update.json
+        
+    - name: Commit and push updated data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add webapp/frontend/public/data/
+        git diff --staged --quiet || git commit -m "Update MISP dashboard data - $TIMESTAMP"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Deploy to GitHub Pages (if enabled)
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./webapp/frontend/dist
+        enable_jekyll: false

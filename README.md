@@ -6,38 +6,180 @@
 
 > 🛡️ **Enterprise-grade MISP DDoS event automation with defense-in-depth security**
 
-A secure, production-ready automation system for managing DDoS events in MISP (Malware Information Sharing Platform). Designed for multi-organization collaboration with strict adherence to the MISP DDoS Playbook.
+# 🛡️ MISP DDoS Automation Suite
 
-## 🎯 Purpose
+A comprehensive, secure toolkit for automating DDoS event management in MISP (Malware Information Sharing Platform). Features enterprise-grade CLI tools and a responsive web dashboard with automated GitHub Actions integration.
 
-This project solves the challenge of **standardized DDoS event sharing** across multiple organizations by:
+![MISP Version](https://img.shields.io/badge/MISP-2.5.21+-blue)
+![Python](https://img.shields.io/badge/Python-3.11+-green)
+![React](https://img.shields.io/badge/React-18+-61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue)
+![Security](https://img.shields.io/badge/Security-TLP%20Compliant-red)
 
-- Automating MISP event creation following the official DDoS playbook
-- Providing secure bulk upload capabilities for CSV/JSON data
-- Ensuring consistency in event structure and taxonomy
-- Enabling collaborative threat intelligence sharing
+## 🌟 Features
 
-## ✨ Features
+### 🔒 Security-First Design
+- **TLP:RED Filtering**: Automatically filters sensitive events from public dashboards
+- **Defense-in-Depth**: Multiple security layers following MISP best practices  
+- **Secure-by-Design**: Input validation, SSL handling, and secure credential management
 
-### 🔧 CLI Interface
-- **Bulk Upload**: Secure CSV/JSON file processing with validation
-- **Interactive Mode**: Guided event creation with input validation
-- **Search & Retrieve**: Query existing DDoS events
-- **Connection Testing**: Validate MISP connectivity and credentials
+### ⚡ CLI Tools
+- **Bulk Upload**: CSV and JSON batch processing
+- **Interactive Mode**: Guided event creation with validation
+- **Template System**: Standardized DDoS event templates
+- **Connection Testing**: Validate MISP instance connectivity
 
-### 🌐 Web Application (Coming Soon)
-- **Drag & Drop Upload**: User-friendly file upload interface
-- **Real-time Processing**: Live progress tracking and validation
-- **GitHub Integration**: Automated processing via GitHub Actions
-- **Responsive Design**: Works on desktop and mobile devices
+### 🎨 Web Dashboard
+- **Cybersecurity Theme**: Professional black/yellow interface
+- **Interactive Charts**: Real-time threat visualization
+- **Responsive Design**: Mobile-friendly dashboard
+- **Live Data**: Automated refresh via GitHub Actions
 
-### 🛡️ Security Features
-- **Input Validation**: Comprehensive sanitization and validation
-- **Path Traversal Protection**: Prevents directory traversal attacks
-- **File Size Limits**: Prevents resource exhaustion
-- **SQL Injection Prevention**: Parameterized queries only
-- **SSL/TLS Enforcement**: Secure communication channels
-- **Credential Management**: Environment-based secret handling
+### 🤖 Automation
+- **GitHub Actions**: Automated data refresh every 30 minutes
+- **GitHub Pages**: Automatic deployment and hosting
+- **Error Handling**: Robust retry logic and monitoring
+
+## �️ Architecture
+
+```
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│                     │    │                     │    │                     │
+│   MISP Instance     │◄───┤   CLI Tools         │    │   Web Dashboard     │
+│   (Tailscale)       │    │   - Bulk Upload     │    │   - React/TypeScript│
+│   - DDoS Events     │    │   - Interactive     │    │   - Chart.js        │
+│   - TLP Filtering   │    │   - Templates       │    │   - Material-UI     │
+│                     │    │                     │    │                     │
+└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+           ▲                          │                          ▲
+           │                          │                          │
+           │                ┌─────────▼──────────┐               │
+           │                │                    │               │
+           └────────────────┤  GitHub Actions    ├───────────────┘
+                            │  - Automated Sync  │
+                            │  - Data Refresh    │
+                            │  - Pages Deploy    │
+                            │                    │
+                            └────────────────────┘
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
+- MISP instance with API access
+- GitHub repository with Pages enabled
+
+### 1. Environment Setup
+```bash
+# Clone repository
+git clone https://github.com/PabloPenguin/misp-ddos-automation.git
+cd misp-ddos-automation
+
+# Install CLI dependencies
+cd cli
+pip install -r requirements.txt
+
+# Install frontend dependencies  
+cd ../webapp/frontend
+npm install
+```
+
+### 2. Configuration
+```bash
+# Copy environment template
+cp .env.template .env
+
+# Edit with your MISP credentials
+MISP_URL=https://your-misp-instance.com
+MISP_API_KEY=your-api-key-here
+MISP_VERIFY_SSL=false  # for self-signed certificates
+```
+
+## 🛠️ Usage
+
+### CLI Tools
+
+#### Test Connection
+```bash
+cd cli
+python src/misp_client.py --test-connection
+```
+
+#### Bulk Upload from CSV
+```bash
+python src/misp_client.py --bulk-upload sample_ddos_events.csv
+```
+
+#### Interactive Mode
+```bash
+python src/misp_client.py --interactive
+```
+
+#### Generate Dashboard Data
+```bash
+python src/misp_client.py --fetch-dashboard-data --output ../webapp/frontend/public/data/dashboard-data.json
+```
+
+### Web Dashboard
+
+#### Development
+```bash
+cd webapp/frontend
+npm run dev
+# Visit http://localhost:3000
+```
+
+#### Production Build
+```bash
+npm run build
+npm run preview
+```
+
+## � Security & Compliance
+
+### MISP DDoS Playbook Compliance
+This system strictly follows the **Streamlined MISP DDoS Playbook** with:
+
+#### Mandatory Event Tags (Global)
+- `tlp:green` (or appropriate TLP level)
+- `information-security-indicators:incident-type="ddos"`
+- `misp-event-type:incident`
+
+#### Galaxy Clusters (Global Enrichment)
+- `mitre-attack-pattern:T1498` — Network DoS
+- `mitre-attack-pattern:T1498.001` — Direct Flood
+- `mitre-attack-pattern:T1498.002` — Amplification
+
+#### Objects (Structured Evidence)
+- `annotation` → Analyst description
+- `ip-port` → Attacker/victim IPs with port context
+
+### TLP:RED Filtering
+**Critical Security Feature**: All TLP:RED classified events are automatically filtered from public dashboards to prevent sensitive information exposure.
+
+## 🚀 Deployment
+
+### GitHub Actions Setup
+1. **Add Repository Secrets**:
+   - `MISP_URL`: Your MISP instance URL
+   - `MISP_API_KEY`: Your MISP API key  
+   - `MISP_VERIFY_SSL`: `false` for self-signed certificates
+
+2. **Enable GitHub Pages**:
+   - Go to repository Settings → Pages
+   - Source: GitHub Actions
+   - The workflow will automatically deploy to Pages
+
+3. **Automated Schedule**:
+   - Business hours: Every 30 minutes (8 AM - 6 PM UTC)
+   - Off-hours: Every 2 hours
+   - Manual trigger available via Actions tab
+
+### Access Your Dashboard
+Once deployed, access your dashboard at:
+`https://[username].github.io/misp-ddos-automation/`
 
 ## 📋 Requirements
 
@@ -56,56 +198,80 @@ This project solves the challenge of **standardized DDoS event sharing** across 
 ### Dependencies
 See [requirements.txt](cli/requirements.txt) for complete dependency list.
 
-## 🚀 Installation
+## � Project Structure
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/PabloPenguin/misp-ddos-automation.git
-cd misp-ddos-automation
+```
+misp-ddos-automation/
+├── .github/
+│   └── workflows/
+│       └── refresh-misp-data.yml    # Automated data refresh
+├── cli/
+│   ├── src/
+│   │   └── misp_client.py          # Main CLI application
+│   ├── templates/                   # DDoS event templates
+│   ├── requirements.txt            # Python dependencies
+│   └── sample_ddos_events.csv      # Sample data for testing
+├── webapp/
+│   └── frontend/
+│       ├── src/
+│       │   ├── components/         # React components
+│       │   ├── pages/             # Dashboard pages
+│       │   └── theme/             # Black/yellow theme
+│       ├── public/
+│       │   └── data/              # Generated MISP data
+│       └── package.json           # Node.js dependencies
+├── docs/                          # Additional documentation
+├── MISP_requirements.md           # Security requirements
+├── TESTING_REPORT.md             # Validation results
+└── README.md                     # This file
 ```
 
-### 2. Create Virtual Environment
+## 🔧 Development
+
+### Adding New Features
+1. Follow security-first principles from `MISP_requirements.md`
+2. Add comprehensive tests for new functionality  
+3. Update documentation and type hints
+4. Ensure TLP compliance for any data handling
+
+### Testing
 ```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS/Linux
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-```bash
+# CLI testing
 cd cli
-pip install -r requirements.txt
+python src/misp_client.py --test-connection
+
+# Frontend testing
+cd webapp/frontend  
+npm test
 ```
 
-### 4. Configure Environment
-Create a `.env` file in the project root:
+## 🤝 Contributing
 
-```env
-# MISP Configuration
-MISP_URL=https://server1.tailaa85d9.ts.net
-MISP_API_KEY=your_misp_api_key_here
-MISP_VERIFY_SSL=true
-MISP_TIMEOUT=30
-MISP_MAX_RETRIES=3
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Follow the security guidelines in `MISP_requirements.md`
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
-# Optional: Logging Configuration
-LOG_LEVEL=INFO
-LOG_FILE=misp_cli.log
-```
+## 📜 License
 
-**🔒 Security Note**: Never commit the `.env` file to version control!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📖 Usage
+## 🆘 Support
 
-### CLI Commands
+- **Documentation**: Check `docs/` directory for detailed guides
+- **Issues**: Report bugs via GitHub Issues
+- **Security**: For security vulnerabilities, follow responsible disclosure
 
-#### Test Connection
-```bash
-python cli/src/cli.py test-connection
+## 🏷️ Version History
+
+- **v2.0.0** - Complete rewrite with React dashboard and GitHub Actions
+- **v1.0.0** - Initial CLI implementation with basic MISP integration
+
+---
+
+**⚠️ Security Notice**: This system handles sensitive threat intelligence data. Always follow your organization's security policies and ensure proper TLP classification handling.
 ```
 
 #### Interactive Mode
