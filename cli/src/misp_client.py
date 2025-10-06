@@ -796,6 +796,134 @@ def create_misp_client(config_path: Optional[Path] = None) -> SecureMISPClient:
         raise
 
 
+def interactive_mode():
+    """Interactive mode for creating DDoS events with user prompts."""
+    import sys
+    
+    try:
+        print("\n📋 Please provide the following information for the DDoS event:")
+        print("   (Press Enter to skip optional fields)\n")
+        
+        # Required fields
+        event_info = input("Event Title/Info: ").strip()
+        if not event_info:
+            print("❌ Event title is required!")
+            return
+        
+        description = input("Event Description: ").strip()
+        if not description:
+            description = f"DDoS event: {event_info}"
+        
+        # Attack details
+        print("\n🎯 Attack Details:")
+        attack_type = input("Attack Type (e.g., Volumetric, Application Layer, Protocol, Reflection): ").strip()
+        if not attack_type:
+            attack_type = "other"
+        
+        # IP addresses
+        print("\n🌐 Network Information:")
+        attacker_ips_input = input("Attacker IP(s) (comma-separated): ").strip()
+        if not attacker_ips_input:
+            print("❌ At least one attacker IP is required!")
+            return
+        attacker_ips = [ip.strip() for ip in attacker_ips_input.split(',') if ip.strip()]
+        
+        victim_ips_input = input("Victim IP(s) (comma-separated): ").strip()
+        if not victim_ips_input:
+            print("❌ At least one victim IP is required!")
+            return
+        victim_ips = [ip.strip() for ip in victim_ips_input.split(',') if ip.strip()]
+        
+        # Ports
+        attack_ports_input = input("Attack Port(s) (comma-separated, optional): ").strip()
+        attack_ports = []
+        if attack_ports_input:
+            try:
+                attack_ports = [int(port.strip()) for port in attack_ports_input.split(',') if port.strip().isdigit()]
+            except ValueError:
+                print("⚠️  Invalid port numbers, skipping ports...")
+        
+        # Severity
+        print("\n⚠️  Severity Level:")
+        print("   1. Low")
+        print("   2. Medium") 
+        print("   3. High")
+        print("   4. Critical")
+        severity_choice = input("Select severity (1-4, default=2): ").strip()
+        severity_map = {"1": "low", "2": "medium", "3": "high", "4": "critical"}
+        severity = severity_map.get(severity_choice, "medium")
+        
+        # TLP Level
+        print("\n🔒 TLP (Traffic Light Protocol) Level:")
+        print("   1. TLP:WHITE (Public)")
+        print("   2. TLP:GREEN (Community)")
+        print("   3. TLP:AMBER (Limited)")
+        print("   4. TLP:RED (Restricted)")
+        tlp_choice = input("Select TLP level (1-4, default=2): ").strip()
+        tlp_map = {"1": "white", "2": "green", "3": "amber", "4": "red"}
+        tlp_level = tlp_map.get(tlp_choice, "green")
+        
+        # Summary
+        print("\n📊 Event Summary:")
+        print(f"   Title: {event_info}")
+        print(f"   Description: {description}")
+        print(f"   Attack Type: {attack_type}")
+        print(f"   Attacker IPs: {', '.join(attacker_ips)}")
+        print(f"   Victim IPs: {', '.join(victim_ips)}")
+        print(f"   Ports: {', '.join(map(str, attack_ports)) if attack_ports else 'None specified'}")
+        print(f"   Severity: {severity.upper()}")
+        print(f"   TLP Level: TLP:{tlp_level.upper()}")
+        
+        # Confirmation
+        confirm = input("\n✅ Create this MISP event? (y/N): ").strip().lower()
+        if confirm not in ['y', 'yes']:
+            print("❌ Event creation cancelled.")
+            return
+        
+        # Create the event
+        print("\n🔄 Creating MISP event...")
+        try:
+            client = create_misp_client()
+            
+            # Create DDoSEventData
+            event_data = DDoSEventData(
+                title=event_info,
+                description=description,
+                attacker_ips=attacker_ips,
+                victim_ips=victim_ips,
+                attack_ports=attack_ports,
+                attack_type=attack_type,
+                severity=severity,
+                tlp_level=tlp_level
+            )
+            
+            result = client.create_ddos_event(event_data)
+            event_id = result.get('event_id')
+            
+            if event_id:
+                print(f"✅ MISP event created successfully!")
+                print(f"   Event ID: {event_id}")
+                
+                # Ask about publishing
+                publish = input("\n📢 Publish this event now? (y/N): ").strip().lower()
+                if publish in ['y', 'yes']:
+                    client.publish_event(event_id)
+                    print("✅ Event published successfully!")
+                else:
+                    print("📝 Event created but not published (you can publish it later from MISP)")
+            else:
+                print("❌ Failed to create event - check logs for details")
+                
+        except Exception as e:
+            print(f"❌ Error creating event: {str(e)}")
+            logger.error("Interactive event creation failed", error=str(e))
+            
+    except KeyboardInterrupt:
+        print("\n\n👋 Interactive mode cancelled.")
+    except Exception as e:
+        print(f"\n❌ Unexpected error: {str(e)}")
+
+
 def main():
     """Main CLI entry point with argument support."""
     import argparse
@@ -815,13 +943,18 @@ Optional Environment Variables:
   MISP_MAX_RETRIES  Maximum retry attempts (default: 3)
 
 Examples:
-  # Windows PowerShell:
-  $env:MISP_URL="https://misp.example.com"; $env:MISP_API_KEY="your-key-here"; python src\\misp_client.py --test-connection
+  # Interactive mode (prompts for values):
+  python src/misp_client.py
+  python src/misp_client.py --interactive
   
-  # Linux/Mac:
-  export MISP_URL="https://misp.example.com"
-  export MISP_API_KEY="your-key-here"
+  # Test connection:
   python src/misp_client.py --test-connection
+  
+  # Process files:
+  python src/misp_client.py --file events.csv --batch
+  
+  # With environment variables (Windows PowerShell):
+  $env:MISP_URL="https://misp.example.com"; $env:MISP_API_KEY="your-key-here"; python src\\misp_client.py --test-connection
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -832,19 +965,25 @@ Examples:
     parser.add_argument('--test-connection', action='store_true', help='Test MISP connection only')
     parser.add_argument('--fetch-dashboard-data', action='store_true', help='Fetch dashboard data (non TLP:RED events)')
     parser.add_argument('--output', type=str, help='Output file path for dashboard data')
+    parser.add_argument('--interactive', action='store_true', help='Start interactive mode for creating events')
     
     args = parser.parse_args()
     
-    # If no arguments provided, show help
+    # If no arguments provided, start interactive mode
     if not any(vars(args).values()):
-        parser.print_help()
-        print("\n💡 Quick Start:")
-        print("   python src/misp_client.py --test-connection")
-        print("   python src/misp_client.py --help")
+        print("🛡️  MISP DDoS Event Creation - Interactive Mode")
+        print("=" * 50)
+        interactive_mode()
         sys.exit(0)
     
     try:
         client = create_misp_client()
+        
+        if args.interactive:
+            print("🛡️  MISP DDoS Event Creation - Interactive Mode")
+            print("=" * 50)
+            interactive_mode()
+            sys.exit(0)
         
         if args.test_connection:
             # Test connection and exit
