@@ -61,7 +61,24 @@ jobs:
     - name: Update data timestamp
       run: |
         echo "{\"lastUpdated\": \"$TIMESTAMP\", \"source\": \"github-actions\"}" > webapp/frontend/public/data/last-update.json
-        
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: webapp/frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      run: |
+        cd webapp/frontend
+        npm ci
+
+    - name: Build frontend
+      run: |
+        cd webapp/frontend
+        npm run build
+
     - name: Commit and push updated data
       run: |
         git config --local user.email "action@github.com"
@@ -71,8 +88,8 @@ jobs:
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Deploy to GitHub Pages (if enabled)
+
+    - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
