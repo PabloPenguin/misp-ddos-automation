@@ -201,7 +201,11 @@ dist
 
 # Gatsby files
 .cache/
-public
+# Ignore generated public files but allow committed sample data
+webapp/frontend/public/data/
+# But keep the public directory structure itself
+!webapp/frontend/public/
+!webapp/frontend/public/404.html
 
 # Storybook build outputs
 .out

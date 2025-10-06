@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import { cachedDataService, CachedDashboardData } from '../services/cachedDataService';
 import { MISPEvent } from '../types';
+import sampleData from '../data/sampleData.json';
 import {
   ThreatLevelPieChart,
   AttackTypeBarChart,
@@ -115,7 +116,32 @@ const Dashboard: React.FC = () => {
 
     } catch (err) {
       console.error('Failed to fetch cached dashboard data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load cached dashboard data');
+      console.log('🔄 Loading fallback sample data...');
+      
+      try {
+        // Use embedded sample data as fallback
+        const fallbackEvents = sampleData.events;
+        
+        setStats({
+          totalEvents: fallbackEvents.length,
+          publishedEvents: fallbackEvents.filter(e => e.published).length,
+          unpublishedEvents: fallbackEvents.filter(e => !e.published).length,
+          tlpRedFiltered: 0,
+          eventsToday: 1,
+          eventsThisWeek: 3,
+          highThreatEvents: 2,
+        });
+
+        setLastUpdated(sampleData.lastUpdated || new Date().toISOString());
+        setDataAge(0);
+        
+        console.log('✅ Fallback sample data loaded successfully');
+        setError('Using sample data for demonstration. Live data will be available when connected to MISP instance.');
+        
+      } catch (fallbackErr) {
+        console.error('Failed to load fallback sample data:', fallbackErr);
+        setError('Failed to load dashboard data. Please check your connection or try refreshing.');
+      }
     } finally {
       setLoading(false);
       if (showProgress) setRefreshing(false);
