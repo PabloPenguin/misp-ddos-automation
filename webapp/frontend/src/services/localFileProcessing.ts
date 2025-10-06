@@ -229,7 +229,7 @@ export class LocalFileProcessingService {
   }
 
   // Get processing status (for local processing, this is immediate)
-  async getProcessingStatus(processingId: string): Promise<FileUploadJob | null> {
+  async getProcessingStatus(_processingId: string): Promise<FileUploadJob | null> {
     // For local processing, status is immediately available
     // This method is mainly for compatibility with the interface
     return null;

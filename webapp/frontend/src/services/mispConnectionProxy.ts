@@ -16,7 +16,7 @@ export class MISPConnectionProxy {
   };
 
   // Test MISP connection via GitHub Actions (CORS workaround)
-  async testConnectionViaProxy(mispUrl: string, apiKey: string): Promise<MISPConnectionProxyResult> {
+  async testConnectionViaProxy(mispUrl: string, _apiKey: string): Promise<MISPConnectionProxyResult> {
     try {
       console.log('🔄 Testing MISP connection via GitHub Actions proxy...');
       

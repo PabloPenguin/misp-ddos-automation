@@ -18,7 +18,6 @@ import {
   FormControlLabel,
   Tooltip,
   IconButton,
-  LinearProgress,
 } from '@mui/material';
 import {
   Warning as WarningIcon,
