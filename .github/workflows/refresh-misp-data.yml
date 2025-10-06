@@ -35,33 +35,174 @@ jobs:
         cd cli
         pip install -r requirements.txt
         
-    - name: Verify MISP connection (skip on GitHub Actions)
-      run: |
-        echo "MISP connection test skipped in GitHub Actions (Tailscale private network)"
-        echo "Connection would be tested against: ${{ secrets.MISP_URL }}"
-        echo "To enable, connect GitHub Actions to Tailscale network"
-      # Uncomment below when MISP is accessible from GitHub Actions
-      # env:
-      #   MISP_URL: ${{ secrets.MISP_URL }}
-      #   MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
-      #   MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
-      # run: |
-      #   cd cli
-      #   python src/misp_client.py --test-connection
-        
-    - name: Create demo data (GitHub Actions placeholder)
+    - name: Generate comprehensive sample MISP data
       run: |
         mkdir -p webapp/frontend/public/data
-        echo '{"events": [], "attributes": [], "organizations": [], "tags": [], "summary": {"totalEvents": 0, "totalAttributes": 0, "totalOrganizations": 0, "totalTags": 0}, "lastUpdated": "'$TIMESTAMP'", "source": "github-actions-demo"}' > webapp/frontend/public/data/dashboard-data.json
-        echo "Created demo data file for GitHub Pages deployment"
-      # Future: Replace with actual MISP data fetching when accessible  
-      # env:
-      #   MISP_URL: ${{ secrets.MISP_URL }}
-      #   MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
-      #   MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
-      # run: |
-      #   cd cli
-      #   python src/misp_client.py --fetch-dashboard-data --output ../webapp/frontend/public/data/dashboard-data.json
+        
+        # Create realistic sample MISP data for proof of concept
+        cat > webapp/frontend/public/data/dashboard-data.json << 'EOF'
+        {
+          "events": [
+            {
+              "id": "1001",
+              "info": "DDoS Attack Campaign Against Financial Sector",
+              "date": "2025-10-07",
+              "threat_level_id": "2",
+              "published": true,
+              "uuid": "5f8a1234-5678-90ab-cdef-123456789abc",
+              "analysis": "2",
+              "distribution": "3",
+              "org_id": "1",
+              "orgc_id": "1",
+              "attribute_count": "15",
+              "event_creator_email": "analyst@security.org",
+              "tags": ["tlp:amber", "ddos:volumetric", "mitre-attack:T1498"]
+            },
+            {
+              "id": "1002", 
+              "info": "Botnet Infrastructure for UDP Amplification",
+              "date": "2025-10-06",
+              "threat_level_id": "3",
+              "published": true,
+              "uuid": "5f8a1234-5678-90ab-cdef-987654321def",
+              "analysis": "1",
+              "distribution": "2",
+              "org_id": "2",
+              "orgc_id": "2", 
+              "attribute_count": "23",
+              "event_creator_email": "threat@cybersec.com",
+              "tags": ["tlp:white", "ddos:amplification", "botnet:mirai"]
+            },
+            {
+              "id": "1003",
+              "info": "Layer 7 HTTP Flood Against E-commerce",
+              "date": "2025-10-05",
+              "threat_level_id": "2",
+              "published": false,
+              "uuid": "5f8a1234-5678-90ab-cdef-456789012345",
+              "analysis": "0",
+              "distribution": "1",
+              "org_id": "1",
+              "orgc_id": "1",
+              "attribute_count": "8",
+              "event_creator_email": "soc@company.com",
+              "tags": ["tlp:green", "ddos:application-layer", "mitre-attack:T1498.001"]
+            }
+          ],
+          "attributes": [
+            {
+              "id": "5001",
+              "event_id": "1001",
+              "type": "ip-src",
+              "category": "Network activity",
+              "value": "185.220.100.240",
+              "comment": "C2 server for DDoS botnet",
+              "to_ids": true,
+              "uuid": "attr-uuid-001",
+              "timestamp": "1696636800",
+              "tags": ["ddos:c2", "malicious-infrastructure"]
+            },
+            {
+              "id": "5002",
+              "event_id": "1001", 
+              "type": "ip-src",
+              "category": "Network activity",
+              "value": "198.51.100.150",
+              "comment": "Amplification reflector",
+              "to_ids": true,
+              "uuid": "attr-uuid-002",
+              "timestamp": "1696636800",
+              "tags": ["ddos:amplifier", "ntp-amplification"]
+            },
+            {
+              "id": "5003",
+              "event_id": "1002",
+              "type": "domain",
+              "category": "Network activity", 
+              "value": "evil-botnet.example.com",
+              "comment": "Botnet command domain",
+              "to_ids": true,
+              "uuid": "attr-uuid-003",
+              "timestamp": "1696550400",
+              "tags": ["ddos:domain", "botnet:mirai"]
+            }
+          ],
+          "organizations": [
+            {
+              "id": "1",
+              "name": "Security Operations Center",
+              "uuid": "org-uuid-001",
+              "description": "Primary threat intelligence team",
+              "type": "CSIRT",
+              "nationality": "US",
+              "local": true
+            },
+            {
+              "id": "2", 
+              "name": "CyberSec Research Lab",
+              "uuid": "org-uuid-002",
+              "description": "External research partnership",
+              "type": "Private Sector",
+              "nationality": "EU",
+              "local": false
+            }
+          ],
+          "tags": [
+            {
+              "id": "101",
+              "name": "tlp:amber",
+              "colour": "#FFC000",
+              "exportable": true,
+              "count": 1
+            },
+            {
+              "id": "102",
+              "name": "ddos:volumetric", 
+              "colour": "#FF6B6B",
+              "exportable": true,
+              "count": 1
+            },
+            {
+              "id": "103",
+              "name": "mitre-attack:T1498",
+              "colour": "#4ECDC4",
+              "exportable": true,
+              "count": 2
+            },
+            {
+              "id": "104",
+              "name": "botnet:mirai",
+              "colour": "#45B7D1",
+              "exportable": true,
+              "count": 2
+            }
+          ],
+          "summary": {
+            "totalEvents": 3,
+            "totalAttributes": 3,
+            "totalOrganizations": 2,
+            "totalTags": 4,
+            "threatLevels": {
+              "high": 2,
+              "medium": 1,
+              "low": 0,
+              "undefined": 0
+            },
+            "analysisStatus": {
+              "initial": 1,
+              "ongoing": 1, 
+              "completed": 1
+            },
+            "publishedEvents": 2,
+            "unpublishedEvents": 1
+          },
+          "lastUpdated": "$TIMESTAMP",
+          "source": "sample-data-for-demo",
+          "note": "This is sample data for proof of concept. Production will use real MISP instance."
+        }
+        EOF
+        
+        echo "Generated comprehensive sample MISP data for dashboard demo"
         
     - name: Generate timestamp
       run: |
@@ -71,9 +212,9 @@ jobs:
       run: |
         mkdir -p webapp/frontend/public/data
         
-    - name: Update data timestamp
+    - name: Update data timestamp  
       run: |
-        echo "{\"lastUpdated\": \"$TIMESTAMP\", \"source\": \"github-actions\"}" > webapp/frontend/public/data/last-update.json
+        echo "{\"lastUpdated\": \"$TIMESTAMP\", \"source\": \"sample-data-demo\", \"dataType\": \"proof-of-concept\", \"note\": \"Sample DDoS threat intelligence data for demonstration\"}" > webapp/frontend/public/data/last-update.json
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
