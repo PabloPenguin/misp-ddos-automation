@@ -185,10 +185,26 @@ class SecureMISPClient:
         try:
             # Load from .env file if it exists (development only)
             from dotenv import load_dotenv
-            env_file = Path('.env')
-            if env_file.exists():
-                load_dotenv(env_file)
-                logger.info("Loaded configuration from .env file")
+            
+            # Look for .env file in multiple locations
+            possible_env_files = [
+                Path('.env'),  # Current directory
+                Path('../.env'),  # Parent directory (if running from cli/)
+                Path('../../.env'),  # Grandparent directory
+                Path(__file__).parent.parent.parent / '.env'  # Project root relative to this file
+            ]
+            
+            env_file_loaded = False
+            for env_file in possible_env_files:
+                if env_file.exists():
+                    load_dotenv(env_file)
+                    logger.info("Loaded configuration from .env file", path=str(env_file.resolve()))
+                    env_file_loaded = True
+                    break
+            
+            if not env_file_loaded:
+                logger.info("No .env file found in expected locations, using system environment only")
+                
         except ImportError:
             logger.info("python-dotenv not available, using system environment only")
         
