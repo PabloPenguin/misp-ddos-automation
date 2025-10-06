@@ -1,8 +1,8 @@
 ﻿import React from 'react';
-import SimpleDashboard from './SimpleDashboard';
+import VisualDashboard from './VisualDashboard';
 
 const DashboardPage: React.FC = () => {
-  return <SimpleDashboard />;
+  return <VisualDashboard />;
 };
 
 export default DashboardPage;
