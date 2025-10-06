@@ -91,7 +91,7 @@ npm install
 # Copy environment template
 cp .env.template .env
 
-# Edit with your MISP credentials
+# Edit .env with your MISP credentials
 MISP_URL=https://your-misp-instance.com
 MISP_API_KEY=your-api-key-here
 MISP_VERIFY_SSL=false  # for self-signed certificates
@@ -101,25 +101,57 @@ MISP_VERIFY_SSL=false  # for self-signed certificates
 
 ### CLI Tools
 
-#### Test Connection
+The CLI requires environment variables to connect to your MISP instance. You can set them in several ways:
+
+#### Option 1: Using .env file (Recommended)
 ```bash
+# Copy and edit the template
+cp .env.template .env
+# Edit .env with your MISP credentials, then:
+cd cli
+python src/misp_client.py --help
+```
+
+#### Option 2: Set environment variables directly
+
+**Windows PowerShell:**
+```powershell
+$env:MISP_URL="https://your-misp-instance.com"
+$env:MISP_API_KEY="your-api-key-here"
+$env:MISP_VERIFY_SSL="false"  # for self-signed certificates
 cd cli
 python src/misp_client.py --test-connection
 ```
 
-#### Bulk Upload from CSV
+**Linux/Mac:**
 ```bash
-python src/misp_client.py --bulk-upload sample_ddos_events.csv
+export MISP_URL="https://your-misp-instance.com"
+export MISP_API_KEY="your-api-key-here"
+export MISP_VERIFY_SSL="false"  # for self-signed certificates
+cd cli
+python src/misp_client.py --test-connection
 ```
 
-#### Interactive Mode
+#### Available Commands
+
+**Test Connection:**
 ```bash
-python src/misp_client.py --interactive
+python src/misp_client.py --test-connection
 ```
 
-#### Generate Dashboard Data
+**Fetch Dashboard Data:**
 ```bash
-python src/misp_client.py --fetch-dashboard-data --output ../webapp/frontend/public/data/dashboard-data.json
+python src/misp_client.py --fetch-dashboard-data --output dashboard-data.json
+```
+
+**Process CSV/JSON Files:**
+```bash
+python src/misp_client.py --file sample_ddos_events.csv --batch
+```
+
+**Get Help:**
+```bash
+python src/misp_client.py --help
 ```
 
 ### Web Dashboard

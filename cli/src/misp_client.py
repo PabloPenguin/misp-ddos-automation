@@ -786,7 +786,29 @@ def main():
     import csv
     import sys
     
-    parser = argparse.ArgumentParser(description='MISP DDoS Event Automation CLI')
+    parser = argparse.ArgumentParser(
+        description='MISP DDoS Event Automation CLI',
+        epilog="""
+Required Environment Variables:
+  MISP_URL          URL of your MISP instance (e.g., https://misp.example.com)
+  MISP_API_KEY      Your MISP API key
+
+Optional Environment Variables:
+  MISP_VERIFY_SSL   Verify SSL certificates (default: true)
+  MISP_TIMEOUT      Connection timeout in seconds (default: 30)
+  MISP_MAX_RETRIES  Maximum retry attempts (default: 3)
+
+Examples:
+  # Windows PowerShell:
+  $env:MISP_URL="https://misp.example.com"; $env:MISP_API_KEY="your-key-here"; python src\\misp_client.py --test-connection
+  
+  # Linux/Mac:
+  export MISP_URL="https://misp.example.com"
+  export MISP_API_KEY="your-key-here"
+  python src/misp_client.py --test-connection
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument('--file', type=str, help='CSV/JSON file to process')
     parser.add_argument('--batch', action='store_true', help='Batch processing mode')
     parser.add_argument('--auto-publish', action='store_true', help='Auto-publish created events')
