@@ -32,23 +32,33 @@ jobs:
         cd cli
         pip install -r requirements.txt
         
-    - name: Verify MISP connection
-      env:
-        MISP_URL: ${{ secrets.MISP_URL }}
-        MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
-        MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
+    - name: Verify MISP connection (skip on GitHub Actions)
       run: |
-        cd cli
-        python src/misp_client.py --test-connection
+        echo "MISP connection test skipped in GitHub Actions (Tailscale private network)"
+        echo "Connection would be tested against: ${{ secrets.MISP_URL }}"
+        echo "To enable, connect GitHub Actions to Tailscale network"
+      # Uncomment below when MISP is accessible from GitHub Actions
+      # env:
+      #   MISP_URL: ${{ secrets.MISP_URL }}
+      #   MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
+      #   MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
+      # run: |
+      #   cd cli
+      #   python src/misp_client.py --test-connection
         
-    - name: Fetch MISP events data (Non TLP:RED)
-      env:
-        MISP_URL: ${{ secrets.MISP_URL }}
-        MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
-        MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
+    - name: Create demo data (GitHub Actions placeholder)
       run: |
-        cd cli
-        python src/misp_client.py --fetch-dashboard-data --output ../webapp/frontend/public/data/dashboard-data.json
+        mkdir -p webapp/frontend/public/data
+        echo '{"events": [], "attributes": [], "organizations": [], "tags": [], "summary": {"totalEvents": 0, "totalAttributes": 0, "totalOrganizations": 0, "totalTags": 0}, "lastUpdated": "'$TIMESTAMP'", "source": "github-actions-demo"}' > webapp/frontend/public/data/dashboard-data.json
+        echo "Created demo data file for GitHub Pages deployment"
+      # Future: Replace with actual MISP data fetching when accessible  
+      # env:
+      #   MISP_URL: ${{ secrets.MISP_URL }}
+      #   MISP_API_KEY: ${{ secrets.MISP_API_KEY }}
+      #   MISP_VERIFY_SSL: ${{ secrets.MISP_VERIFY_SSL }}
+      # run: |
+      #   cd cli
+      #   python src/misp_client.py --fetch-dashboard-data --output ../webapp/frontend/public/data/dashboard-data.json
         
     - name: Generate timestamp
       run: |
