@@ -37,7 +37,9 @@ jobs:
         
     - name: Generate comprehensive sample MISP data
       run: |
+        # Create data directory structure
         mkdir -p webapp/frontend/public/data
+        ls -la webapp/frontend/public/ || echo "Public directory structure:"
         
         # Create realistic sample MISP data for proof of concept
         cat > webapp/frontend/public/data/dashboard-data.json << 'EOF'
@@ -233,15 +235,8 @@ jobs:
         cd webapp/frontend
         npm run build
 
-    - name: Commit and push updated data
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add webapp/frontend/public/data/
-        git diff --staged --quiet || git commit -m "Update MISP dashboard data - $TIMESTAMP"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # Skip git commit - data files are generated during build and don't need to be committed
+    # The sample data is created fresh each deployment for this proof of concept
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
