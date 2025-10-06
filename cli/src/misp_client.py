@@ -835,6 +835,14 @@ Examples:
     
     args = parser.parse_args()
     
+    # If no arguments provided, show help
+    if not any(vars(args).values()):
+        parser.print_help()
+        print("\n💡 Quick Start:")
+        print("   python src/misp_client.py --test-connection")
+        print("   python src/misp_client.py --help")
+        sys.exit(0)
+    
     try:
         client = create_misp_client()
         
@@ -968,8 +976,10 @@ Examples:
                        processing_id=args.processing_id)
         
         else:
-            # Interactive mode
-            logger.info("MISP client ready for interactive use")
+            # This shouldn't happen now due to the check above, but keeping as fallback
+            logger.info("No action specified. Use --help for available options.")
+            parser.print_help()
+            sys.exit(1)
             
     except Exception as e:
         logger.error("CLI execution failed", error=str(e))
